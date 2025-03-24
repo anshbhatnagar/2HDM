@@ -16,6 +16,10 @@
 #   NLopt_LIBRARIES - list of libraries to be linked
 #
 
+# Modified by Adam Boutcher, IPPP - Durham University
+# Supports NLopt in a non-standard directory unknown to the ld linker.
+string(REPLACE ":" ";" NLopt_INCLUDE_DIR $ENV{NLopt_INCLUDE_DIR})
+
 find_package(PkgConfig)
 pkg_check_modules(PC_NLopt QUIET NLopt)
 
@@ -23,10 +27,19 @@ find_path(NLopt_INCLUDE_DIR
   NAMES nlopt.hpp
   PATHS ${PC_NLopt_INCLUDE_DIRS}
 )
+find_path(NLopt_INCLUDE_DIR
+  NAMES nlopt.hpp
+  PATHS ${NLopt_INCLUDE_DIR}
+)
+
 
 find_library(NLopt_LIBRARY
   NAMES nlopt nlopt_cxx
   PATHS ${PC_NLopt_LIBRARY_DIRS}
+)
+find_library(NLopt_LIBRARY
+  NAMES nlopt nlopt_cxx
+  PATHS ${NLopt_INCLUDE_DIR}
 )
 
 include(FindPackageHandleStandardArgs)
