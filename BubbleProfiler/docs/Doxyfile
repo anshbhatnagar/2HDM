@@ -58,7 +58,7 @@ PROJECT_LOGO           =
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = "/home/abhatnagar/Documents/2HDM/PhaseTracer/PhaseTracer/BubbleProfiler/docs"
+OUTPUT_DIRECTORY       = "/mt/home/abhatnagar/2HDM/2HDM/BubbleProfiler/docs"
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -733,7 +733,7 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  =  "/home/abhatnagar/Documents/2HDM/PhaseTracer/PhaseTracer/BubbleProfiler/docs/../README.md" "/home/abhatnagar/Documents/2HDM/PhaseTracer/PhaseTracer/BubbleProfiler/docs/../include" "/home/abhatnagar/Documents/2HDM/PhaseTracer/PhaseTracer/BubbleProfiler/docs/../src" "/home/abhatnagar/Documents/2HDM/PhaseTracer/PhaseTracer/BubbleProfiler/docs/../examples"
+INPUT                  =  "/mt/home/abhatnagar/2HDM/2HDM/BubbleProfiler/docs/../README.md" "/mt/home/abhatnagar/2HDM/2HDM/BubbleProfiler/docs/../include" "/mt/home/abhatnagar/2HDM/2HDM/BubbleProfiler/docs/../src" "/mt/home/abhatnagar/2HDM/2HDM/BubbleProfiler/docs/../examples"
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -801,7 +801,7 @@ EXCLUDE_SYMBOLS        =
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           = /home/abhatnagar/Documents/2HDM/PhaseTracer/PhaseTracer/BubbleProfiler/docs/../examples/
+EXAMPLE_PATH           = /mt/home/abhatnagar/2HDM/2HDM/BubbleProfiler/docs/../examples/
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
@@ -821,7 +821,7 @@ EXAMPLE_RECURSIVE      = NO
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             = /home/abhatnagar/Documents/2HDM/PhaseTracer/PhaseTracer/BubbleProfiler/docs/images/
+IMAGE_PATH             = /mt/home/abhatnagar/2HDM/2HDM/BubbleProfiler/docs/images/
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
@@ -869,7 +869,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE = /home/abhatnagar/Documents/2HDM/PhaseTracer/PhaseTracer/BubbleProfiler/docs/../README.md
+USE_MDFILE_AS_MAINPAGE = /mt/home/abhatnagar/2HDM/2HDM/BubbleProfiler/docs/../README.md
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
@@ -2281,4 +2281,4 @@ DOT_CLEANUP            = YES
 
 # Nicer styling (not perfect!)
 
-HTML_EXTRA_STYLESHEET = /home/abhatnagar/Documents/2HDM/PhaseTracer/PhaseTracer/BubbleProfiler/docs/style.css
+HTML_EXTRA_STYLESHEET = /mt/home/abhatnagar/2HDM/2HDM/BubbleProfiler/docs/style.css

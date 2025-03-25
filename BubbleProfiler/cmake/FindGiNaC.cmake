@@ -16,6 +16,7 @@
 #   GINAC_LIBRARIES - list of libraries to be linked
 #
 
+string(REPLACE ":" ";" GINAC_INCLUDE_DIR $ENV{GINAC_INCLUDE_DIR})
 find_package(CLN 1.2.2 REQUIRED)
 
 find_package(PkgConfig)
@@ -29,6 +30,16 @@ find_path(GINAC_INCLUDE_DIR
 find_library(GINAC_LIBRARY
   NAMES libginac ginac
   PATHS ${PC_GINAC_LIBRARY_DIRS}
+)
+
+find_path(GINAC_INCLUDE_DIR
+  NAMES ginac/ginac.h
+  PATHS ${GINAC_INCLUDE_DIR}
+)
+
+find_library(GINAC_LIBRARY
+  NAMES libginac ginac
+  PATHS ${GINAC_INCLUDE_DIR}
 )
 
 include(FindPackageHandleStandardArgs)
