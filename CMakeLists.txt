@@ -32,6 +32,7 @@ find_package(Boost 1.53.0 REQUIRED
 set(Boost_USE_MULTITHREADED ON)
 
 find_package(ALGLIB REQUIRED)
+find_package(OpenMP REQUIRED)
 find_package(Eigen3 3.1 REQUIRED)
 find_package(NLopt REQUIRED)
 find_package(Threads REQUIRED)
@@ -57,6 +58,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 get_target_property(EFFPOTENTIAL_INCLUDE_DIRS effectivepotential INTERFACE_INCLUDE_DIRECTORIES)  
 include_directories(
   ${Boost_INCLUDE_DIRS}
+  ${OpenMP_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${NLopt_INCLUDE_DIRS}
   ${EFFPOTENTIAL_INCLUDE_DIRS}

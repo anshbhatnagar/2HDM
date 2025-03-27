@@ -21,7 +21,9 @@
 #include <vector>
 #include <cmath>
 #include "thread"
+#include "omp.h"
 #include <nlohmann/json.hpp>
+#include "../ProgressBar/progress.hpp"
 
 #include "DRalgo_2HDM.hpp"
 #include "phasetracer.hpp"
@@ -207,17 +209,24 @@ int main(int argc, char* argv[]){
     return 0;
   }
 
-  #pragma omp parallel for shared(modelParamsVec, output)
-  {
+  progress::progBar bar(5*numRuns);
+
+  std::thread progress;
+  progress = bar.start();
+
+  #pragma omp parallel for shared(modelParamsVec, output, bar)
     for(int i = 0; i < numRuns; i++){
       json runOut;
       std::string runError;
       int errCount = 0;
+      int numTries = 5;
       json testParams = modelParamsVec[i];
 
       runOut[runVar] = modelParamsVec[i][runVar].get<double>();
 
-      while(errCount < 5){
+      //omp_set_num_threads(4);
+
+      while(errCount < numTries){
 
         try{
         THDM thdm(testParams);
@@ -238,21 +247,37 @@ int main(int argc, char* argv[]){
         #pragma omp critical
         {
           output.push_back(runOut);
+          bar.add(numTries - errCount);
         }
         
-        errCount = 5;
+        errCount = numTries;
 
         } catch(...){
-          testParams[runVar] = 1.0001*testParams[runVar].get<double>();
+          if(errCount == numTries - 1){
+            runOut["Error"] = "Failed to run a parameter point!";
+            #pragma omp critical
+            {
+              output.push_back(runOut);
+              bar.add(numTries - errCount);
+            }
+            errCount = numTries;
+          } else{
+          testParams[runVar] = 1.001*testParams[runVar].get<double>();
           runOut[runVar] = testParams[runVar].get<double>();
           errCount += 1;
+          #pragma omp critical
+          {
+            bar.add(1);
+          }
+        }
         }
      }
-
-    }
     
   }
     //std::cout<<output << std::endl;
+
+    bar.finish();
+    progress.join();
 
     std::ofstream outFile;
     outFile.open(outputFileName+".json");
@@ -261,7 +286,7 @@ int main(int argc, char* argv[]){
 
     outFile.close();
 
-    //std::cout<<std::endl;
+    std::cout<<std::endl;
 
     return 0;
 

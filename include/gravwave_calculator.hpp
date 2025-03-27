@@ -144,11 +144,15 @@ private:
   /** Temperature threshold for using bubble collision */
   PROPERTY(double, T_threshold_bubble_collision, 10);
 
+  //Changes made below by Ansh
   /** The step-size in numerical derivative for dVdT */
+  //PROPERTY(double, h_dVdT, 1e-2);
   PROPERTY(double, h_dVdT, 1e-2);
   /** The step-size in numerical derivative for dSdT */
+  //PROPERTY(double, h_dSdT, 1e-1);
   PROPERTY(double, h_dSdT, 1e-1);
   /** The number of points used in numerical derivative of action */
+  //PROPERTY(double, np_dSdT, 5);
   PROPERTY(double, np_dSdT, 5);
 
   /**  */

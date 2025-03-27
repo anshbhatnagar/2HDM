@@ -237,8 +237,11 @@ private:
   PROPERTY(double, change_rel_tol, 1.e-3)
   /** Absolute tolerance for judging whether a field is changed during a transition */
   PROPERTY(double, change_abs_tol, 1.e-3)
+  //Change made below by Ansh
+  //PROPERTY(double, Tnuc_step, 1)
   PROPERTY(double, Tnuc_step, 0.1)
   /** Relative precision in nucleation temperature */
+  //PROPERTY(double, Tnuc_tol_rel, 1.e-3)
   PROPERTY(double, Tnuc_tol_rel, 1.e-3)
 
   PROPERTY(bool, calculate_action, false)

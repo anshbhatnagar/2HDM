@@ -17,7 +17,7 @@ paper/paper\.spl
 paper/paper\.toc
 *__pycache__*
 build
-
+cmake/FindNLopt.cmake
 
 
 
