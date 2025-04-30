@@ -1,5 +1,8 @@
 add_executable(run_DRalgo_ah run_DRalgo_ah.cpp)
 add_executable(run_DRalgo_xSM run_DRalgo_xSM.cpp)
 add_executable(run_DRalgo_2HDM run_DRalgo_2HDM.cpp)
+add_executable(run_2HDM_ST run_2HDM_ST.cpp)
 add_executable(2HDM_runs 2HDM_runs.cpp ../ProgressBar/progress.cpp)
 target_link_libraries(2HDM_runs PRIVATE OpenMP::OpenMP_CXX)
+add_executable(2HDM_vt_runs 2HDM_vt_runs.cpp ../ProgressBar/progress.cpp)
+target_link_libraries(2HDM_vt_runs PRIVATE OpenMP::OpenMP_CXX)

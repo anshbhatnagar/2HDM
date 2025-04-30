@@ -143,7 +143,7 @@ class DR_2HDM: public Potential {
       DR_2HDM_Potential V2HDM;
       std::complex<double> veffLO = V2HDM.V0(phi, T, par);
       std::complex<double> veffNLO = V2HDM.V1(phi, T, par);
-      std::complex<double> veffNNLO = V2HDM.V2(phi, T, par);
+      std::complex<double> veffNNLO = 0;//V2HDM.V2(phi, T, par);
 
       double Veff = veffLO.real() + veffNLO.real() + veffNNLO.real();
 

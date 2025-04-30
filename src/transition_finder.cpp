@@ -22,6 +22,10 @@
 
 #include <boost/math/tools/roots.hpp>
 
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
 namespace PhaseTracer {
 
 double TransitionFinder::find_critical_temperature(const Phase &phase1, const Phase &phase2, double T1, double T2) const {
@@ -142,7 +146,11 @@ double TransitionFinder::get_Tnuc(const Phase &phase1, const Phase &phase2, size
 
   while (std::isnan(nc)) {
     LOG(debug) << "action was nan - stepping down in temperature";
-    T_begin -= Tnuc_step;
+    if((T_begin - T_end)<Tnuc_step){
+      T_begin -= 0.01*Tnuc_step;
+    }else{
+      T_begin -= Tnuc_step;
+    }
     if (T_begin < T_end) {
       LOG(fatal) << "could not find nucleation temperature";
       return std::numeric_limits<double>::quiet_NaN();
@@ -163,7 +171,11 @@ double TransitionFinder::get_Tnuc(const Phase &phase1, const Phase &phase2, size
     LOG(debug) << "action was nan or no nucleation at end - stepping down in temperature";
     double T_end_ = T_end;
     while (true) {
-      T_end = T_begin - Tnuc_step;
+      if((T_end - T_end_)<Tnuc_step){
+        T_end = T_begin - 0.01*Tnuc_step;
+      }else{
+        T_end = T_begin - Tnuc_step;
+      }
       if (T_end < T_end_) {
         LOG(fatal) << "could not find nucleation temperature";
         return std::numeric_limits<double>::quiet_NaN();
@@ -323,8 +335,7 @@ void TransitionFinder::find_transitions() {
         continue;
       }
 
-      LOG(debug) << "Finding transition between phases "
-                 << phase1.key << " and " << phase2.key;
+      LOG(debug) << "Finding transition between phases " << phase1.key << " and " << phase2.key;
 
       double tmax = std::min(phase1.T.back(), phase2.T.back());
       double tmin = std::max(phase1.T.front(), phase2.T.front());
@@ -377,6 +388,187 @@ void TransitionFinder::find_transitions() {
   std::sort(transitions.begin(), transitions.end(),
             [](const Transition &a, const Transition &b) { return a.TC < b.TC; });
 }
+
+double TransitionFinder::get_v_T() {
+  const auto phases = pf.get_phases();
+
+  std::vector<double> vec_vt;
+
+  double v_T = 0;
+
+  for (const auto &phase1 : phases) {
+    for (const auto &phase2 : phases) {
+      // Don't investigate n1 -> n1 or n1 -> n2 as well as n2 -> n1
+      if (phase1.key >= phase2.key) {
+        continue;
+      }
+
+      LOG(debug) << "Finding transition between phases " << phase1.key << " and " << phase2.key;
+
+      double tmax = std::min(phase1.T.back(), phase2.T.back());
+      double tmin = std::max(phase1.T.front(), phase2.T.front());
+
+      if (tmin > tmax) {
+        LOG(debug) << "Phases do not coexist in temperature - no transition";
+        continue;
+      }
+
+      auto T_range = get_un_overlapped_T_range(phase1, phase2, tmin, tmax);
+
+      if (T_range.size() == 0) {
+        LOG(debug) << "Phases entirely overlap - no transition";
+        continue;
+      }
+
+      if (T_range.size() == 3) {
+        const double TC = T_range[2];
+        LOG(debug) << "Phases join at T = " << TC;
+
+        continue;
+      }
+      try{
+      double TC = find_critical_temperature(phase1, phase2, T_range[0], T_range[1]);
+    
+      
+      const auto phase1_at_critical = pf.phase_at_T(phase1, TC);
+      const auto phase2_at_critical = pf.phase_at_T(phase2, TC);
+
+      double vev1 = phase1_at_critical.x.dot(phase1_at_critical.x);
+      double vev2 = phase2_at_critical.x.dot(phase2_at_critical.x);
+
+      vec_vt.push_back((vev2 - vev1)/TC);
+    }catch (const std::exception &e) {
+      //LOG(fatal) << e.what() << " for " << T_range[0] << " and " << T_range[1];
+      continue;
+    }
+    
+    }
+  }
+
+  for(auto test_vt : vec_vt){
+    if(v_T == 0){
+      v_T = test_vt;
+    }else if(abs(test_vt) < abs(v_T)){
+      v_T = test_vt;
+    }
+  }
+
+  return v_T;
+}
+
+
+
+json TransitionFinder::get_S_T(int nS){
+  const auto phases = pf.get_phases();
+
+  json output;
+
+  output = json::array();
+
+  for (const auto &phase1 : phases) {
+    for (const auto &phase2 : phases) {
+      // Don't investigate n1 -> n1 or n1 -> n2 as well as n2 -> n1
+      if (phase1.key >= phase2.key) {
+        continue;
+      }
+
+      LOG(debug) << "Finding transition between phases " << phase1.key << " and " << phase2.key;
+
+      double tmax = std::min(phase1.T.back(), phase2.T.back());
+      double tmin = std::max(phase1.T.front(), phase2.T.front());
+
+      if (tmin > tmax) {
+        LOG(debug) << "Phases do not coexist in temperature - no transition";
+        continue;
+      }
+
+      auto T_range = get_un_overlapped_T_range(phase1, phase2, tmin, tmax);
+
+      if (T_range.size() == 0) {
+        LOG(debug) << "Phases entirely overlap - no transition";
+        continue;
+      }
+
+      if (T_range.size() == 3) {
+        const double TC = T_range[2];
+        LOG(debug) << "Phases join at T = " << TC;
+
+        continue;
+      }
+      double TC;
+      try{
+      TC = find_critical_temperature(phase1, phase2, T_range[0], T_range[1]);
+
+      }catch (const std::exception &e) {
+        //LOG(fatal) << e.what() << " for " << T_range[0] << " and " << T_range[1];
+        continue;
+      }
+
+      LOG(debug) << "Found critical temperature = " << TC;
+
+      std::vector<Transition> unique_transitions = symmetric_partners(phase1, phase2, TC, transitions.size());
+
+      double T1 = tmin;
+
+      size_t i_selected = 0;
+      if (unique_transitions.size() > 1) {
+        double min_action = std::numeric_limits<double>::max();
+        for (size_t i_unique = 0; i_unique < unique_transitions.size(); i_unique++) {
+
+          double Ttry = T1 + 0.9 * (TC - T1);
+          double try_action = get_action(phase1, phase2, Ttry, i_unique);
+          LOG(debug) << "Action at " << Ttry << " for transtion " << i_unique << " is " << try_action;
+          if (try_action < min_action) {
+            min_action = try_action;
+            i_selected = i_unique;
+          }
+        }
+        if (std::isfinite(min_action)) {
+          LOG(debug) << "Select the symmetric partner " << i_selected << ".";
+        } else {
+          LOG(debug) << "Cannot select the symmetric partner. min action = " << min_action;
+          throw std::runtime_error("Non-finite action when selecting the symmetric partner");
+        }
+      }
+
+      double T_begin = TC;
+      double T_end = T1;
+
+      if (T_begin < T_end) {
+        LOG(trace) << "T_begin < T_end, so swap the values";
+        std::swap(T_begin, T_end);
+      }
+
+      LOG(debug) << "Find nucleation temperature between " << phase1.key << " and " << phase2.key << " in [" << T_begin << ", " << T_end << "]";
+
+      const auto S_T = [this, phase1, phase2, i_selected](double Ttry) {
+        return this->get_action(phase1, phase2, Ttry, i_selected) / Ttry;
+      };
+
+      json outArr;
+
+      outArr = json::array();
+
+      for(int i = 0; i<nS; i++){
+        double T_val = T_begin - (T_begin - T_end)/nS*i;
+        double st = S_T(T_val);
+
+        json runOut;
+
+        runOut["S/T"] = st;
+        runOut["T"] = T_val;
+
+        outArr.push_back(runOut);
+      }
+
+      output.push_back(outArr);
+    
+    }
+  }
+
+  return output;
+}
+
 
 void TransitionFinder::append_subcritical_transitions() {
   const auto phases = pf.get_phases();

@@ -63,9 +63,7 @@ class THDM{
     double mZ = 91.1876;
 
   public:
-    double trans_alpha = 0;
-    double trans_beta_H = 0;
-    double trans_Tnuc = 0;
+    double v_T;
 
     THDM(json inModelParams){
       modelParams = inModelParams;
@@ -123,47 +121,25 @@ class THDM{
       if ( p1.size() == 0 ) { 
         return "Couldn't find multiple phases.";
         }
-    
+      
       // Make ActionCalculator object
       PhaseTracer::ActionCalculator ac(model);
       //ac.set_action_calculator(PhaseTracer::ActionMethod::BubbleProfiler);
-      
+
       // Make TransitionFinder object and find the transitions
       PhaseTracer::TransitionFinder tf(pf, ac);
-      tf.find_transitions();
+
 
       //std::cout << tf;
-    
-      auto t = tf.get_transitions();
-      if (t.size()==0){
-        return "Couldn't find transitions.";
+      try{
+        v_T = tf.get_v_T();
       }
-    
-      //PhaseTracer::potential_plotter(model,t[0].TC,"2HDM");
-      //PhaseTracer::potential_line_plotter(model,t,"2HDM");
-    
-      if ( isnan(t[0].TN) ){
-        return "Couldn't find finite nucleation temperature.";
+      catch(...){
+        return "Failed to get v/T!";
       }
-    
-      trans_Tnuc = t[0].TN;
-    
-      // Make GravWave Object
-      PhaseTracer::GravWaveCalculator gc(tf);
-      gc.set_min_frequency(1e-4);
-      gc.set_max_frequency(1e+1);
-      gc.calc_spectrums();
-    
-      // std::cout << gc;
-    
-      auto gw = gc.get_spectrums();
-    
-      if ( isnan(gw[0].alpha) || isnan(gw[0].beta_H)){
-        return "Couldn't find gravitational waves.";
-      }
-      trans_alpha = gw[0].alpha;
-      trans_beta_H = gw[0].beta_H;
 
+    
+      
       return "Success!";
       
     }
@@ -295,16 +271,11 @@ int main(int argc, char* argv[]){
         THDM thdm(testParams);
         
         runError = thdm.CalcPhaseTransition();
-
-        if(thdm.trans_Tnuc < 1){
-          throw "Zero Tnuc";
-        }
-        runOut["alpha"] = thdm.trans_alpha;
-        runOut["beta/H"] = thdm.trans_beta_H;
-        runOut["Tnuc"] = thdm.trans_Tnuc;
         
         if(runError != "Success!"){
           runOut["Error"] = runError;
+        }else{
+          runOut["v_T"] = thdm.v_T;
         }
   
         #pragma omp critical
@@ -315,31 +286,7 @@ int main(int argc, char* argv[]){
         
         errCount = numTries;
 
-        } catch(const std::exception &e){
-          if(errCount == numTries - 1){
-            std::string errMsg = e.what();
-            runOut["Error"] = errMsg;
-            #pragma omp critical
-            {
-              output.push_back(runOut);
-              bar.add(numTries - errCount);
-            }
-            errCount = numTries;
-          } else{
-            testParams[runVarX] = 1.0001*testParams[runVarX].get<double>();
-            runOut[runVarX] = testParams[runVarX].get<double>();
-            if(twoDim){
-              testParams[runVarY] = 1.0001*testParams[runVarY].get<double>();
-              runOut[runVarY] = testParams[runVarY].get<double>();
-            }
-            
-            errCount += 1;
-            #pragma omp critical
-            {
-              bar.add(1);
-            }
-          }
-        } catch(...){//const std::exception &e){
+        } catch(...){
           if(errCount == numTries - 1){
             runOut["Error"] = "Failed to run a parameter point!";
             #pragma omp critical
@@ -367,7 +314,6 @@ int main(int argc, char* argv[]){
     
     }
   }
-  //std::cout<<output << std::endl;
 
   bar.finish();
   progress.join();

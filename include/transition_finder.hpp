@@ -33,6 +33,10 @@
 #include "action_calculator.hpp"
 #include "transition_graph_util.hpp"
 
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
 namespace TransitionGraph {
 struct Path;
 }
@@ -149,6 +153,10 @@ public:
   /** Find all transitions between all phases */
   void find_transitions();
 
+  double get_v_T();
+
+  json get_S_T(int nS);
+
   /** Called from find_transitions; adds subcritical transitions to the transitions vector */
   void append_subcritical_transitions();
 
@@ -230,6 +238,7 @@ private:
   /** Assume at most one critical temperature between two phases */
   PROPERTY(bool, assume_only_one_transition, true)
   /** Relative precision in critical temperature */
+  //PROPERTY(double, TC_tol_rel, 1.e-4)
   PROPERTY(double, TC_tol_rel, 1.e-4)
   /** Maximum number of iterations when finding a critical temperature */
   PROPERTY(boost::uintmax_t, max_iter, 100)
@@ -242,8 +251,8 @@ private:
   PROPERTY(double, Tnuc_step, 0.1)
   /** Relative precision in nucleation temperature */
   //PROPERTY(double, Tnuc_tol_rel, 1.e-3)
-  PROPERTY(double, Tnuc_tol_rel, 1.e-3)
-
+  PROPERTY(double, Tnuc_tol_rel, 1.e-4)
+  
   PROPERTY(bool, calculate_action, false)
 
   /**

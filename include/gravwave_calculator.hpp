@@ -150,7 +150,7 @@ private:
   PROPERTY(double, h_dVdT, 1e-2);
   /** The step-size in numerical derivative for dSdT */
   //PROPERTY(double, h_dSdT, 1e-1);
-  PROPERTY(double, h_dSdT, 1e-1);
+  PROPERTY(double, h_dSdT, 1e-2);
   /** The number of points used in numerical derivative of action */
   //PROPERTY(double, np_dSdT, 5);
   PROPERTY(double, np_dSdT, 5);

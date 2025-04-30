@@ -53,8 +53,8 @@ std::string toString(std::vector<double> in, std::vector<double> out) {
 
 int main(int argc, char* argv[]) {
 
-  std::ofstream output_file;
-  output_file.open("output.txt");
+  std::ofstream outFile;
+  outFile.open("output.json");
 
   LOGGER(debug);
 
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
     pf.find_phases();
   } catch (...) {
     std::vector<double> out = {-1, 0, 0, 0, 0, 0, 0, 0};
-    output_file << toString(in, out) << std::endl;
+    outFile << toString(in, out) << std::endl;
     return 0;
   }
   std::cout << pf;
@@ -120,48 +120,19 @@ int main(int argc, char* argv[]) {
   
   // Make TransitionFinder object and find the transitions
   PhaseTracer::TransitionFinder tf(pf, ac);
+
+  json output = tf.get_S_T(100);
+
+  outFile << std::setw(4) << output << std::endl;
+
+  outFile.close();
+
   tf.find_transitions();
 
   std::cout << tf;
 
-  auto t = tf.get_transitions();
-  if (t.size()==0){
-    std::vector<double> out = {-2, 0, 0, 0, 0, 0, 0, 0};
-    output_file << toString(in, out) << std::endl;
-    return 0;
-  }
+  std::cout<<std::endl;
 
-  PhaseTracer::potential_plotter(model,t[0].TC,"2HDM-TC");
-  PhaseTracer::potential_plotter(model,t[0].TC-1,"2HDM-low");
-  //PhaseTracer::potential_line_plotter(model,t,"2HDM");
-
-  if ( isnan(t[0].TN) ){
-    std::vector<double> out = {-3, t[0].TC, t[0].TN, 0, 0, 0, 0, };
-    output_file << toString(in, out) << std::endl;
-    output_file.close();
-    return 0;
-  }
-
-  // Make GravWave Object
-  PhaseTracer::GravWaveCalculator gc(tf);
-  gc.set_min_frequency(1e-4);
-  gc.set_max_frequency(1e+1);
-  gc.calc_spectrums();
-
-  std::cout << gc;
-
-  auto gw = gc.get_spectrums();
-
-  if ( isnan(gw[0].beta_H) || gw[0].beta_H < 1 || gw[0].beta_H > 1e100){
-    std::vector<double> out = {-5, t[0].TC, t[0].TN, (t[0].TC - t[0].TN)/t[0].TC, gw[0].beta_H, 0, 0, 0};
-    output_file << toString(in, out) << std::endl;
-    output_file.close();
-    return 0;
-  }
-
-  std::vector<double> out = {(float)t.size(), t[0].TC, t[0].TN, (t[0].TC - t[0].TN)/t[0].TC, gw[0].beta_H, gw[0].peak_amplitude, gw[0].peak_frequency, gw[0].SNR[0]};
-  output_file << toString(in, out) << std::endl;
-  output_file.close();
   return 0;
-
+  
 }
