@@ -6,6 +6,7 @@ link_libraries(
   ${EIGEN3_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${ALGLIB_LIBRARIES}
+  ${}
   effectivepotential
 )
 
@@ -22,3 +23,5 @@ if(THREADS_HAVE_PTHREAD_ARG)
 endif()
 
 add_library(phasetracer SHARED ${SRC_FILES})
+
+target_link_libraries(phasetracer PRIVATE nlohmann_json::nlohmann_json)
