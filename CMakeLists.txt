@@ -36,6 +36,12 @@ find_package(OpenMP REQUIRED)
 find_package(Eigen3 3.1 REQUIRED)
 find_package(NLopt REQUIRED)
 find_package(Threads REQUIRED)
+
+include(FetchContent)
+
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
 find_package(Git)
 # find_package(EffPotential REQUIRED)
 add_subdirectory(EffectivePotential)
