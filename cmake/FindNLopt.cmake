@@ -18,7 +18,7 @@
 
 # Modified by Adam Boutcher, IPPP - Durham University
 # Supports NLopt in a non-standard directory unknown to the ld linker.
-string(REPLACE ":" ";" NLopt_INCLUDE_DIR $ENV{NLopt_INCLUDE_DIR})
+#string(REPLACE ":" ";" NLopt_INCLUDE_DIR $ENV{NLopt_INCLUDE_DIR})
 
 find_package(PkgConfig)
 pkg_check_modules(PC_NLopt QUIET NLopt)
