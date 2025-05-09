@@ -24,4 +24,4 @@ endif()
 
 add_library(phasetracer SHARED ${SRC_FILES})
 
-target_link_libraries(phasetracer PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(phasetracer PUBLIC nlohmann_json::nlohmann_json)
