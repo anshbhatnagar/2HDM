@@ -188,7 +188,7 @@ class DR_2HDM: public Potential {
       //double Lf = Lb + 4. * log(2.);
       double EulerGamma = 0.5772156649;
       double Glaisher = 1.282427;
-      std::complex<double> mu4 = 4 * pi * exp(EulerGamma) * mu4D * T;
+      std::complex<double> mu4 = 4 * pi * exp(-EulerGamma) * mu4D * T;
       std::complex<double> mu3 = mu3D * T;
       std::complex<double> Lb = 2*EulerGamma - 2*log(4*pi) + log(pow(mu4,2)/pow(T,2));
       std::complex<double> Lf = 2*EulerGamma + 4*log(2) - 2*log(4*pi) + log(pow(mu4,2)/pow(T,2));
